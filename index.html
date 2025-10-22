@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poker Calculater - Mr. Moustache</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #111827;
+      color: #f9fafb;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #38bdf8;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 800px;
+      margin-top: 20px;
+      background-color: #1f2937;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+      border-bottom: 1px solid #374151;
+    }
+    th {
+      background-color: #0f172a;
+      color: #38bdf8;
+    }
+    input {
+      width: 80px;
+      padding: 5px;
+      background-color: #111827;
+      color: white;
+      border: 1px solid #374151;
+      border-radius: 5px;
+      text-align: center;
+    }
+    button {
+      background-color: #38bdf8;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      color: #111827;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #7dd3fc;
+    }
+    .controls {
+      margin-bottom: 15px;
+    }
+    .result {
+      background-color: #1f2937;
+      padding: 15px;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 800px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Poker Calculater by Mr. Moustache</h1>
+
+  <div class="controls">
+    <label>Number of Players: </label>
+    <input type="number" id="playerCount" value="9" min="2" max="12">
+    <button onclick="generateTable()">Generate</button>
+  </div>
+
+  <div id="tableContainer"></div>
+
+  <script>
+    const buyValue = 5; // million per buy
+
+    function generateTable() {
+      const count = parseInt(document.getElementById("playerCount").value);
+      const container = document.getElementById("tableContainer");
+      // Load saved names from localStorage
+      const savedNames = JSON.parse(localStorage.getItem('pokerPlayerNames')) || [];
+      container.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Buys</th>
+              <th>Chips Back (M)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${Array.from({ length: count }, (_, i) => `
+              <tr>
+                <td><input type="text" id="name_${i}" value="${savedNames[i] || 'Player ' + (i + 1)}"></td>
+                <td><input type="number" id="buy_${i}" value="1" min="0"></td>
+                <td><input type="number" id="back_${i}" value="0" min="0"></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <div style="margin-top:15px;">
+          <label>Total Expense (M): </label>
+          <input type="number" id="expense" value="0" min="0">
+        </div>
+        <button onclick="calculate()">Calculate</button>
+        <button onclick="resetNumbers()">Reset Numbers</button>
+        <button onclick="showHistory()">Show History</button>
+        <div id="resultContainer"></div>
+      `;
+    }
+
+    function calculate() {
+      const count = parseInt(document.getElementById("playerCount").value);
+      const expense = parseFloat(document.getElementById("expense").value);
+      let players = [];
+
+      for (let i = 0; i < count; i++) {
+        const name = document.getElementById(`name_${i}`).value;
+        const buys = parseInt(document.getElementById(`buy_${i}`).value);
+        const back = parseFloat(document.getElementById(`back_${i}`).value);
+        const totalBuy = buys * buyValue;
+        const net = back - totalBuy;
+        players.push({ name, buys, back, totalBuy, net });
+      }
+
+      // Save names to localStorage
+      const names = players.map(p => p.name);
+      localStorage.setItem('pokerPlayerNames', JSON.stringify(names));
+
+      const winner = players.reduce((a, b) => a.net > b.net ? a : b);
+
+      // Save winner to history
+      const winners = JSON.parse(localStorage.getItem('pokerWinners')) || [];
+      winners.push({ name: winner.name, date: new Date().toLocaleDateString() });
+      localStorage.setItem('pokerWinners', JSON.stringify(winners));
+
+      const losers = players.filter(p => p.net < 0);
+      const others = players.filter(p => p.name !== winner.name);
+
+      const totalLoss = losers.reduce((sum, p) => sum + Math.abs(p.net), 0);
+      const halfExpense = expense / 2;
+      const equalShare = halfExpense / others.length;
+
+      players.forEach(p => {
+        if (p.name === winner.name) {
+          p.toPay = 0;
+        } else {
+          const lossShare = p.net < 0 ? (Math.abs(p.net) / totalLoss) * halfExpense : 0;
+          p.toPay = lossShare + equalShare;
+        }
+      });
+
+      const resultHTML = `
+        <div class="result">
+          <h3>Results</h3>
+          ${players.map(p => `
+            <div><strong>${p.name}</strong> — Net: ${p.net.toFixed(1)}M — Pays: ${p.toPay.toFixed(1)}M</div>
+          `).join('')}
+          <p style="margin-top:10px;color:#38bdf8;">🏆 ${winner.name} is the winner and pays nothing!</p>
+        </div>
+      `;
+      document.getElementById("resultContainer").innerHTML = resultHTML;
+      document.getElementById("resultContainer").scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetNumbers() {
+      const count = parseInt(document.getElementById("playerCount").value);
+      for (let i = 0; i < count; i++) {
+        document.getElementById(`buy_${i}`).value = 0;
+        document.getElementById(`back_${i}`).value = 0;
+      }
+      document.getElementById("expense").value = 0;
+      document.getElementById("resultContainer").innerHTML = "";
+    }
+
+    function showHistory() {
+      const winners = JSON.parse(localStorage.getItem('pokerWinners')) || [];
+      const historyHTML = `
+        <div class="result">
+          <h3>Previous Winners</h3>
+          ${winners.length > 0 ? winners.map(w => `
+            <div><strong>${w.name}</strong> — ${w.date}</div>
+          `).join('') : '<p>No previous winners recorded.</p>'}
+        </div>
+      `;
+      document.getElementById("resultContainer").innerHTML = historyHTML;
+    }
+
+    generateTable();
+  </script>
+
+</body>
+</html>
