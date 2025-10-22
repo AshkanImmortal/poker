@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Poker Calculater - Mr. Moustache</title>
+  <title>Poker Calculator - Mr. Moustache</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -44,11 +44,36 @@
       border-radius: 5px;
       text-align: center;
     }
+    .buy-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .plus-btn {
+      background-color: #10b981;
+      border: none;
+      color: white;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      padding: 0;
+    }
+    .plus-btn:hover {
+      background-color: #059669;
+    }
     button {
       background-color: #38bdf8;
       border: none;
       padding: 10px 20px;
-      margin-top: 15px;
+      margin: 5px;
       border-radius: 5px;
       cursor: pointer;
       color: #111827;
@@ -72,7 +97,7 @@
 </head>
 <body>
 
-  <h1>Poker Calculater by Mr. Moustache</h1>
+  <h1>Poker Calculator by Mr. Moustache</h1>
 
   <div class="controls">
     <label>Number of Players: </label>
@@ -84,6 +109,11 @@
 
   <script>
     const buyValue = 5; // million per buy
+
+    function addBuy(playerIndex) {
+      const buyInput = document.getElementById(`buy_${playerIndex}`);
+      buyInput.value = parseInt(buyInput.value) + 1;
+    }
 
     function generateTable() {
       const count = parseInt(document.getElementById("playerCount").value);
@@ -103,7 +133,12 @@
             ${Array.from({ length: count }, (_, i) => `
               <tr>
                 <td><input type="text" id="name_${i}" value="${savedNames[i] || 'Player ' + (i + 1)}"></td>
-                <td><input type="number" id="buy_${i}" value="1" min="0"></td>
+                <td>
+                  <div class="buy-controls">
+                    <input type="number" id="buy_${i}" value="1" min="0">
+                    <button class="plus-btn" onclick="addBuy(${i})">+</button>
+                  </div>
+                </td>
                 <td><input type="number" id="back_${i}" value="0" min="0"></td>
               </tr>
             `).join('')}
