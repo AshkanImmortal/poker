@@ -31,6 +31,14 @@
       text-align: center;
       border-bottom: 1px solid #374151;
     }
+    .total-row {
+      background-color: #0f172a;
+      font-weight: bold;
+      color: #38bdf8;
+    }
+    .total-row td {
+      border-top: 2px solid #38bdf8;
+    }
     th {
       background-color: #0f172a;
       color: #38bdf8;
@@ -69,6 +77,25 @@
     .plus-btn:hover {
       background-color: #059669;
     }
+    .minus-btn {
+      background-color: #ef4444;
+      border: none;
+      color: white;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      padding: 0;
+    }
+    .minus-btn:hover {
+      background-color: #dc2626;
+    }
     button {
       background-color: #38bdf8;
       border: none;
@@ -79,7 +106,7 @@
       color: #111827;
       font-weight: bold;
     }
-    button:hover {
+    button:hover {ق
       background-color: #7dd3fc;
     }
     .controls {
@@ -113,6 +140,32 @@
     function addBuy(playerIndex) {
       const buyInput = document.getElementById(`buy_${playerIndex}`);
       buyInput.value = parseInt(buyInput.value) + 1;
+      updateTotals();
+    }
+
+    function removeBuy(playerIndex) {
+      const buyInput = document.getElementById(`buy_${playerIndex}`);
+      const currentValue = parseInt(buyInput.value);
+      if (currentValue > 0) {
+        buyInput.value = currentValue - 1;
+        updateTotals();
+      }
+    }
+
+    function updateTotals() {
+      const count = parseInt(document.getElementById("playerCount").value);
+      let totalBuys = 0;
+      let totalChips = 0;
+
+      for (let i = 0; i < count; i++) {
+        const buys = parseInt(document.getElementById(`buy_${i}`).value) || 0;
+        const chips = parseFloat(document.getElementById(`back_${i}`).value) || 0;
+        totalBuys += buys * buyValue; // Convert to millions
+        totalChips += chips;
+      }
+
+      document.getElementById("totalBuys").textContent = totalBuys.toFixed(1) + "M";
+      document.getElementById("totalChips").textContent = totalChips.toFixed(1) + "M";
     }
 
     function generateTable() {
@@ -125,7 +178,7 @@
           <thead>
             <tr>
               <th>Name</th>
-              <th>Buys</th>
+              <th>Buys (5M each)</th>
               <th>Chips Back (M)</th>
             </tr>
           </thead>
@@ -135,6 +188,7 @@
                 <td><input type="text" id="name_${i}" value="${savedNames[i] || 'Player ' + (i + 1)}"></td>
                 <td>
                   <div class="buy-controls">
+                    <button class="minus-btn" onclick="removeBuy(${i})">-</button>
                     <input type="number" id="buy_${i}" value="1" min="0">
                     <button class="plus-btn" onclick="addBuy(${i})">+</button>
                   </div>
@@ -142,6 +196,11 @@
                 <td><input type="number" id="back_${i}" value="0" min="0"></td>
               </tr>
             `).join('')}
+            <tr class="total-row">
+              <td>Total</td>
+              <td id="totalBuys">0</td>
+              <td id="totalChips">0.0M</td>
+            </tr>
           </tbody>
         </table>
         <div style="margin-top:15px;">
@@ -150,9 +209,17 @@
         </div>
         <button onclick="calculate()">Calculate</button>
         <button onclick="resetNumbers()">Reset</button>
-        <button onclick="showHistory()">History</button>
         <div id="resultContainer"></div>
       `;
+
+      // Add event listeners to update totals when inputs change
+      setTimeout(() => {
+        for (let i = 0; i < count; i++) {
+          document.getElementById(`buy_${i}`).addEventListener('input', updateTotals);
+          document.getElementById(`back_${i}`).addEventListener('input', updateTotals);
+        }
+        updateTotals();
+      }, 0);
     }
 
     function calculate() {
@@ -174,11 +241,6 @@
       localStorage.setItem('pokerPlayerNames', JSON.stringify(names));
 
       const winner = players.reduce((a, b) => a.net > b.net ? a : b);
-
-      // Save winner to history
-      const winners = JSON.parse(localStorage.getItem('pokerWinners')) || [];
-      winners.push({ name: winner.name, date: new Date().toLocaleDateString() });
-      localStorage.setItem('pokerWinners', JSON.stringify(winners));
 
       const losers = players.filter(p => p.net < 0);
       const others = players.filter(p => p.name !== winner.name);
@@ -217,19 +279,7 @@
       }
       document.getElementById("expense").value = 0;
       document.getElementById("resultContainer").innerHTML = "";
-    }
-
-    function showHistory() {
-      const winners = JSON.parse(localStorage.getItem('pokerWinners')) || [];
-      const historyHTML = `
-        <div class="result">
-          <h3>Previous Winners</h3>
-          ${winners.length > 0 ? winners.map(w => `
-            <div><strong>${w.name}</strong> — ${w.date}</div>
-          `).join('') : '<p>No previous winners recorded.</p>'}
-        </div>
-      `;
-      document.getElementById("resultContainer").innerHTML = historyHTML;
+      updateTotals();
     }
 
     generateTable();
