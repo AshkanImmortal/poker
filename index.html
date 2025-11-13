@@ -110,7 +110,30 @@
       background-color: #7dd3fc;
     }
     .controls {
-      margin-bottom: 15px;
+      background: linear-gradient(145deg, #1f2937 0%, #374151 100%);
+      border: 2px solid #38bdf8;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+    .controls label {
+      color: #fbbf24;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .save-status {
+      text-align: center;
+      margin: 8px 0 15px 0;
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      min-height: 20px;
     }
     .result {
       background-color: #1f2937;
@@ -119,6 +142,94 @@
       width: 100%;
       max-width: 800px;
       margin-top: 20px;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+      }
+
+      table {
+        max-width: 100%;
+        font-size: 0.9rem;
+      }
+
+      th, td {
+        padding: 8px 4px;
+      }
+
+      input {
+        width: 50px;
+        font-size: 14px;
+      }
+
+      .buy-controls {
+        gap: 3px;
+      }
+
+      .plus-btn, .minus-btn {
+        width: 22px;
+        height: 22px;
+        font-size: 12px;
+      }
+
+      button {
+        padding: 10px 16px;
+        margin: 4px;
+        font-size: 0.85rem;
+      }
+
+      .controls {
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .controls label {
+        margin-bottom: 8px;
+      }
+
+      .save-status {
+        font-size: 0.75rem;
+        margin: 6px 0 12px 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      table {
+        font-size: 0.8rem;
+      }
+
+      th, td {
+        padding: 6px 2px;
+      }
+
+      input {
+        width: 45px;
+        padding: 3px 4px;
+      }
+
+      .plus-btn, .minus-btn {
+        width: 20px;
+        height: 20px;
+        font-size: 11px;
+      }
+
+      button {
+        padding: 8px 12px;
+        margin: 3px;
+        font-size: 0.8rem;
+      }
     }
   </style>
 </head>
@@ -132,15 +243,83 @@
     <button onclick="generateTable()">Generate</button>
   </div>
 
+  <div id="saveIndicator" class="save-status"></div>
+
   <div id="tableContainer"></div>
 
   <script>
     const buyValue = 5; // million per buy
 
+    // Auto-save functionality
+    let autoSaveTimer;
+
+    function saveGameState() {
+      const count = parseInt(document.getElementById("playerCount").value);
+      const gameState = {
+        playerCount: count,
+        expense: document.getElementById("expense").value,
+        players: [],
+        timestamp: new Date().toISOString()
+      };
+
+      for (let i = 0; i < count; i++) {
+        gameState.players.push({
+          name: document.getElementById(`name_${i}`).value,
+          buys: document.getElementById(`buy_${i}`).value,
+          chipsBack: document.getElementById(`back_${i}`).value
+        });
+      }
+
+      localStorage.setItem('pokerGameState', JSON.stringify(gameState));
+      updateSaveIndicator();
+    }
+
+    function loadGameState() {
+      const savedState = localStorage.getItem('pokerGameState');
+      if (savedState) {
+        const gameState = JSON.parse(savedState);
+        document.getElementById("playerCount").value = gameState.playerCount;
+        // Don't set expense here - it will be set in generateTable()
+      }
+    }
+
+    function updateSaveIndicator() {
+      const indicator = document.getElementById('saveIndicator');
+      if (indicator) {
+        const savedState = localStorage.getItem('pokerGameState');
+        if (savedState) {
+          const gameState = JSON.parse(savedState);
+          const savedTime = new Date(gameState.timestamp);
+          const now = new Date();
+          const diffMinutes = Math.floor((now - savedTime) / (1000 * 60));
+
+          let timeText;
+          if (diffMinutes < 1) timeText = 'just now';
+          else if (diffMinutes < 60) timeText = `${diffMinutes}m ago`;
+          else timeText = `${Math.floor(diffMinutes / 60)}h ago`;
+
+          indicator.textContent = `💾 Saved ${timeText}`;
+          indicator.style.color = '#22c55e';
+          indicator.style.backgroundColor = 'rgba(34, 197, 94, 0.1)';
+        } else {
+          indicator.textContent = '';
+          indicator.style.backgroundColor = 'transparent';
+        }
+      }
+    }
+
+    function clearSavedData() {
+      localStorage.removeItem('pokerGameState');
+      localStorage.removeItem('pokerPlayerNames');
+      updateSaveIndicator();
+      alert('All saved data cleared!');
+    }
+
     function addBuy(playerIndex) {
       const buyInput = document.getElementById(`buy_${playerIndex}`);
       buyInput.value = parseInt(buyInput.value) + 1;
       updateTotals();
+      saveGameState();
     }
 
     function removeBuy(playerIndex) {
@@ -149,6 +328,7 @@
       if (currentValue > 0) {
         buyInput.value = currentValue - 1;
         updateTotals();
+        saveGameState();
       }
     }
 
@@ -207,17 +387,44 @@
           <label>Total Expense (M): </label>
           <input type="number" id="expense" value="0" min="0">
         </div>
-        <button onclick="calculate()">Calculate</button>
-        <button onclick="resetNumbers()">Reset</button>
+        <button onclick="calculate()">🎯 Calculate</button>
+        <button onclick="resetNumbers()">🔄 Reset</button>
+        <button onclick="clearSavedData()" style="background: linear-gradient(145deg, #dc2626 0%, #b91c1c 100%); border: 2px solid #dc2626; color: #fbbf24;">🗑️ Clear Data</button>
         <div id="resultContainer"></div>
       `;
 
-      // Add event listeners to update totals when inputs change
+      // Restore saved game state if it exists
+      const savedState = localStorage.getItem('pokerGameState');
+      if (savedState) {
+        const gameState = JSON.parse(savedState);
+        setTimeout(() => {
+          gameState.players.forEach((player, index) => {
+            if (document.getElementById(`name_${index}`)) {
+              document.getElementById(`name_${index}`).value = player.name;
+              document.getElementById(`buy_${index}`).value = player.buys;
+              document.getElementById(`back_${index}`).value = player.chipsBack;
+            }
+          });
+          document.getElementById("expense").value = gameState.expense || 0;
+          updateTotals();
+          updateSaveIndicator();
+        }, 100);
+      }
+
+      // Add event listeners to update totals and auto-save when inputs change
       setTimeout(() => {
         for (let i = 0; i < count; i++) {
-          document.getElementById(`buy_${i}`).addEventListener('input', updateTotals);
-          document.getElementById(`back_${i}`).addEventListener('input', updateTotals);
+          document.getElementById(`buy_${i}`).addEventListener('input', () => {
+            updateTotals();
+            saveGameState();
+          });
+          document.getElementById(`back_${i}`).addEventListener('input', () => {
+            updateTotals();
+            saveGameState();
+          });
+          document.getElementById(`name_${i}`).addEventListener('input', saveGameState);
         }
+        document.getElementById('expense').addEventListener('input', saveGameState);
         updateTotals();
       }, 0);
     }
@@ -280,8 +487,10 @@
       document.getElementById("expense").value = 0;
       document.getElementById("resultContainer").innerHTML = "";
       updateTotals();
+      saveGameState();
     }
 
+    loadGameState();
     generateTable();
   </script>
 
