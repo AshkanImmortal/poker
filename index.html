@@ -126,14 +126,17 @@
       white-space: nowrap;
     }
     .save-status {
-      text-align: center;
-      margin: 8px 0 15px 0;
-      font-size: 0.8rem;
-      font-weight: 500;
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      font-size: 0.7rem;
+      font-weight: 400;
       padding: 4px 8px;
-      border-radius: 6px;
+      border-radius: 4px;
       transition: all 0.3s ease;
-      min-height: 20px;
+      opacity: 0.8;
+      z-index: 1000;
+      pointer-events: none;
     }
     .result {
       background-color: #1f2937;
@@ -196,8 +199,10 @@
       }
 
       .save-status {
-        font-size: 0.75rem;
-        margin: 6px 0 12px 0;
+        font-size: 0.65rem;
+        bottom: 8px;
+        right: 8px;
+        padding: 3px 6px;
       }
     }
 
@@ -230,6 +235,13 @@
         margin: 3px;
         font-size: 0.8rem;
       }
+
+      .save-status {
+        font-size: 0.6rem;
+        bottom: 5px;
+        right: 5px;
+        padding: 2px 4px;
+      }
     }
   </style>
 </head>
@@ -243,9 +255,9 @@
     <button onclick="generateTable()">Generate</button>
   </div>
 
-  <div id="saveIndicator" class="save-status"></div>
-
   <div id="tableContainer"></div>
+
+  <div id="saveIndicator" class="save-status"></div>
 
   <script>
     const buyValue = 5; // million per buy
@@ -301,9 +313,9 @@
           indicator.textContent = `💾 Saved ${timeText}`;
           indicator.style.color = '#22c55e';
           indicator.style.backgroundColor = 'rgba(34, 197, 94, 0.1)';
+          indicator.style.display = 'block';
         } else {
-          indicator.textContent = '';
-          indicator.style.backgroundColor = 'transparent';
+          indicator.style.display = 'none';
         }
       }
     }
