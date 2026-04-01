@@ -1,393 +1,678 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Poker Calculator - Mr. Moustache</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #111827;
-      color: #f9fafb;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
-    h1 {
-      color: #38bdf8;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      max-width: 800px;
-      margin-top: 20px;
-      background-color: #1f2937;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    th, td {
-      padding: 10px;
-      text-align: center;
-      border-bottom: 1px solid #374151;
-    }
-    .total-row {
-      background-color: #0f172a;
-      font-weight: bold;
-      color: #38bdf8;
-    }
-    .total-row td {
-      border-top: 2px solid #38bdf8;
-    }
-    th {
-      background-color: #0f172a;
-      color: #38bdf8;
-    }
-    input {
-      width: 75px;
-      padding: 3px;
-      background-color: #111827;
-      color: white;
-      border: 1px solid #374151;
-      border-radius: 5px;
-      text-align: center;
-    }
-    .buy-controls {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-    }
-    .plus-btn {
-      background-color: #10b981;
-      border: none;
-      color: white;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0;
-      padding: 0;
-    }
-    .plus-btn:hover {
-      background-color: #059669;
-    }
-    .minus-btn {
-      background-color: #ef4444;
-      border: none;
-      color: white;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0;
-      padding: 0;
-    }
-    .minus-btn:hover {
-      background-color: #dc2626;
-    }
-    button {
-      background-color: #38bdf8;
-      border: none;
-      padding: 10px 20px;
-      margin: 5px;
-      border-radius: 5px;
-      cursor: pointer;
-      color: #111827;
-      font-weight: bold;
-    }
-    button:hover {
-      background-color: #7dd3fc;
-    }
-    .controls {
-      background: linear-gradient(145deg, #1f2937 0%, #374151 100%);
-      border: 2px solid #38bdf8;
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-    }
-    .controls label {
-      color: #fbbf24;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .save-status {
-      position: fixed;
-      bottom: 10px;
-      right: 10px;
-      font-size: 0.7rem;
-      font-weight: 400;
-      padding: 4px 8px;
-      border-radius: 4px;
-      transition: all 0.3s ease;
-      opacity: 0.8;
-      z-index: 1000;
-      pointer-events: none;
-    }
-    .result {
-      background-color: #1f2937;
-      padding: 15px;
-      border-radius: 8px;
-      width: 100%;
-      max-width: 800px;
-      margin-top: 20px;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Poker Share by Mr. Sibil</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
 
-    /* Mobile Responsiveness */
-    @media (max-width: 768px) {
       body {
-        padding: 10px;
+        font-family: Arial, sans-serif;
+        background-color: #111827;
+        color: #f9fafb;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        padding-top: 68px;
+        min-height: 100vh;
       }
 
-      h1 {
-        font-size: 1.8rem;
-        margin-bottom: 15px;
+      /* ── Fixed top header ─────────────────────────── */
+      .top-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background-color: #0f172a;
+        border-bottom: 2px solid #38bdf8;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 11px 18px;
+      }
+      .top-header h1 {
+        color: #38bdf8;
+        margin: 0;
+        font-size: 1.2rem;
+      }
+      .burger-btn {
+        background: none;
+        border: 1px solid #374151;
+        color: #38bdf8;
+        font-size: 1.35rem;
+        cursor: pointer;
+        padding: 4px 10px;
+        border-radius: 6px;
+        line-height: 1;
+        transition: background 0.2s;
+      }
+      .burger-btn:hover {
+        background-color: rgba(56, 189, 248, 0.12);
       }
 
+      /* ── Overlay ──────────────────────────────────── */
+      .menu-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        z-index: 200;
+      }
+      .menu-overlay.open {
+        display: block;
+      }
+
+      /* ── Slide-in menu panel ──────────────────────── */
+      .menu-panel {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        right: -310px;
+        width: 290px;
+        background-color: #1f2937;
+        border-left: 2px solid #38bdf8;
+        z-index: 300;
+        transition: right 0.28s ease;
+        padding: 18px 16px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+      .menu-panel.open {
+        right: 0;
+      }
+
+      .menu-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 22px;
+        margin-top: 4px;
+      }
+      .menu-header span {
+        color: #38bdf8;
+        font-size: 1.05rem;
+        font-weight: bold;
+      }
+      .menu-close-btn {
+        background: none;
+        border: none;
+        color: #9ca3af;
+        font-size: 1.15rem;
+        cursor: pointer;
+        padding: 4px 8px;
+        border-radius: 4px;
+      }
+      .menu-close-btn:hover {
+        color: #f9fafb;
+        background: #374151;
+      }
+
+      .menu-section-title {
+        color: #fbbf24;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 10px;
+      }
+      .menu-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .menu-row label {
+        color: #d1d5db;
+        font-size: 0.88rem;
+        flex: 1;
+      }
+      .menu-row input {
+        width: 64px;
+        flex-shrink: 0;
+      }
+      .gen-btn {
+        background: #38bdf8;
+        border: none;
+        color: #111827;
+        font-weight: bold;
+        padding: 6px 11px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.82rem;
+        white-space: nowrap;
+      }
+      .gen-btn:hover {
+        background: #7dd3fc;
+      }
+
+      .menu-divider {
+        border: none;
+        border-top: 1px solid #374151;
+        margin: 16px 0;
+      }
+      .menu-action-btn {
+        width: 100%;
+        padding: 11px;
+        margin-bottom: 8px;
+        border-radius: 8px;
+        border: none;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 0.88rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+      .reset-btn {
+        background: #374151;
+        color: #f9fafb;
+      }
+      .reset-btn:hover {
+        background: #4b5563;
+      }
+      .clear-btn {
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        color: #fbbf24;
+      }
+      .clear-btn:hover {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+      }
+
+      /* ── Table ────────────────────────────────────── */
       table {
-        max-width: 100%;
-        font-size: 0.9rem;
+        border-collapse: collapse;
+        width: 100%;
+        max-width: 800px;
+        margin-top: 10px;
+        background-color: #1f2937;
+        border-radius: 8px;
+        overflow: hidden;
       }
-
-      th, td {
-        padding: 8px 4px;
+      th,
+      td {
+        padding: 10px;
+        text-align: center;
+        border-bottom: 1px solid #374151;
+      }
+      .total-row {
+        background-color: #0f172a;
+        font-weight: bold;
+        color: #38bdf8;
+      }
+      .total-row td {
+        border-top: 2px solid #38bdf8;
+      }
+      th {
+        background-color: #0f172a;
+        color: #38bdf8;
       }
 
       input {
-        width: 50px;
-        font-size: 14px;
+        width: 75px;
+        padding: 4px;
+        background-color: #111827;
+        color: white;
+        border: 1px solid #374151;
+        border-radius: 5px;
+        text-align: center;
+        font-size: 0.9rem;
+      }
+      input:focus {
+        outline: 1px solid #38bdf8;
+        border-color: #38bdf8;
       }
 
       .buy-controls {
-        gap: 3px;
-      }
-
-      .plus-btn, .minus-btn {
-        width: 22px;
-        height: 22px;
-        font-size: 12px;
-      }
-
-      button {
-        padding: 10px 16px;
-        margin: 4px;
-        font-size: 0.85rem;
-      }
-
-      .controls {
-        flex-direction: column;
+        display: flex;
         align-items: center;
-        margin-bottom: 20px;
+        justify-content: center;
+        gap: 5px;
+      }
+      .plus-btn,
+      .minus-btn {
+        border: none;
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        flex-shrink: 0;
+        line-height: 1;
+      }
+      .plus-btn {
+        background-color: #10b981;
+      }
+      .plus-btn:hover {
+        background-color: #059669;
+      }
+      .minus-btn {
+        background-color: #ef4444;
+      }
+      .minus-btn:hover {
+        background-color: #dc2626;
       }
 
-      .controls label {
-        margin-bottom: 8px;
+      /* ── Below-table action area ──────────────────── */
+      .action-area {
+        width: 100%;
+        max-width: 800px;
+        margin-top: 14px;
+      }
+      .calc-settings {
+        background: #1f2937;
+        border-radius: 8px;
+        padding: 14px 16px;
+        margin-bottom: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: center;
+      }
+      .setting-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .setting-group label {
+        color: #fbbf24;
+        font-weight: 600;
+        font-size: 0.88rem;
+        white-space: nowrap;
+      }
+      .setting-group .hint {
+        color: #6b7280;
+        font-size: 0.76rem;
+      }
+      .calc-btn {
+        width: 100%;
+        padding: 13px;
+        background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+        border: none;
+        border-radius: 8px;
+        color: #111827;
+        font-weight: bold;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .calc-btn:hover {
+        background: linear-gradient(135deg, #7dd3fc, #38bdf8);
       }
 
+      /* ── Warning ──────────────────────────────────── */
+      .warning-box {
+        background: rgba(251, 191, 36, 0.08);
+        border: 1px solid #fbbf24;
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-bottom: 10px;
+        color: #fbbf24;
+        font-size: 0.87rem;
+        line-height: 1.45;
+      }
+
+      /* ── Results ──────────────────────────────────── */
+      .result {
+        background-color: #1f2937;
+        padding: 16px;
+        border-radius: 8px;
+        width: 100%;
+        max-width: 800px;
+        margin-top: 16px;
+      }
+      .result h3 {
+        color: #38bdf8;
+        margin: 0 0 12px;
+      }
+      .result-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 9px 0;
+        border-bottom: 1px solid #374151;
+        gap: 8px;
+      }
+      .result-row:last-of-type {
+        border-bottom: none;
+      }
+      .result-left {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .result-name {
+        font-weight: bold;
+      }
+      .result-net {
+        color: #9ca3af;
+        font-size: 0.82rem;
+      }
+      .result-pay {
+        font-weight: bold;
+        white-space: nowrap;
+      }
+      .pays-nothing {
+        color: #10b981;
+      }
+      .pays-amount {
+        color: #f87171;
+      }
+      .winner-note {
+        margin-top: 12px;
+        padding-top: 10px;
+        border-top: 1px solid #374151;
+        color: #10b981;
+        font-size: 0.88rem;
+        margin-bottom: 0;
+      }
+
+      /* ── Save indicator ───────────────────────────── */
       .save-status {
-        font-size: 0.65rem;
-        bottom: 8px;
-        right: 8px;
-        padding: 3px 6px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      h1 {
-        font-size: 1.5rem;
-      }
-
-      table {
-        font-size: 0.8rem;
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        font-size: 0.7rem;
+        padding: 4px 8px;
+        border-radius: 4px;
+        opacity: 0.8;
+        z-index: 1000;
+        pointer-events: none;
+        display: none;
       }
 
-      th, td {
-        padding: 6px 2px;
-      }
-
-      input {
-        width: 45px;
-        padding: 3px 4px;
-      }
-
-      .plus-btn, .minus-btn {
-        width: 20px;
-        height: 20px;
-        font-size: 11px;
-      }
-
-      button {
-        padding: 8px 12px;
-        margin: 3px;
-        font-size: 0.8rem;
-      }
-
-      .save-status {
-        font-size: 0.6rem;
-        bottom: 5px;
-        right: 5px;
-        padding: 2px 4px;
-      }
-    }
-  </style>
-</head>
-<body>
-
-  <h1>Poker Calc by Mr. Sibil</h1>
-
-  <div class="controls">
-    <label>Number of Players: </label>
-    <input type="number" id="playerCount" value="9" min="2" max="12">
-    <button onclick="generateTable()">Generate</button>
-  </div>
-
-  <div id="tableContainer"></div>
-
-  <div id="saveIndicator" class="save-status"></div>
-
-  <script>
-    const buyValue = 5; // million per buy
-
-    // Auto-save functionality
-    let autoSaveTimer;
-
-    function saveGameState() {
-      const count = parseInt(document.getElementById("playerCount").value);
-      const gameState = {
-        playerCount: count,
-        expense: document.getElementById("expense").value,
-        players: [],
-        timestamp: new Date().toISOString()
-      };
-
-      for (let i = 0; i < count; i++) {
-        gameState.players.push({
-          name: document.getElementById(`name_${i}`).value,
-          buys: document.getElementById(`buy_${i}`).value,
-          chipsBack: document.getElementById(`back_${i}`).value
-        });
-      }
-
-      localStorage.setItem('pokerGameState', JSON.stringify(gameState));
-      updateSaveIndicator();
-    }
-
-    function loadGameState() {
-      const savedState = localStorage.getItem('pokerGameState');
-      if (savedState) {
-        const gameState = JSON.parse(savedState);
-        document.getElementById("playerCount").value = gameState.playerCount;
-        // Don't set expense here - it will be set in generateTable()
-      }
-    }
-
-    function updateSaveIndicator() {
-      const indicator = document.getElementById('saveIndicator');
-      if (indicator) {
-        const savedState = localStorage.getItem('pokerGameState');
-        if (savedState) {
-          const gameState = JSON.parse(savedState);
-          const savedTime = new Date(gameState.timestamp);
-          const now = new Date();
-          const diffMinutes = Math.floor((now - savedTime) / (1000 * 60));
-
-          let timeText;
-          if (diffMinutes < 1) timeText = 'just now';
-          else if (diffMinutes < 60) timeText = `${diffMinutes}m ago`;
-          else timeText = `${Math.floor(diffMinutes / 60)}h ago`;
-
-          indicator.textContent = `💾 Saved ${timeText}`;
-          indicator.style.color = '#22c55e';
-          indicator.style.backgroundColor = 'rgba(34, 197, 94, 0.1)';
-          indicator.style.display = 'block';
-        } else {
-          indicator.style.display = 'none';
+      /* ── Mobile ───────────────────────────────────── */
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+          padding-top: 62px;
+        }
+        .top-header h1 {
+          font-size: 1.02rem;
+        }
+        table {
+          font-size: 0.88rem;
+        }
+        th,
+        td {
+          padding: 8px 4px;
+        }
+        input {
+          width: 48px;
+          font-size: 0.84rem;
+        }
+        .buy-controls {
+          gap: 3px;
+        }
+        .calc-settings {
+          gap: 12px;
+        }
+        .menu-panel {
+          width: 270px;
+          right: -280px;
         }
       }
-    }
+      @media (max-width: 480px) {
+        .top-header {
+          padding: 9px 12px;
+        }
+        .top-header h1 {
+          font-size: 0.9rem;
+        }
+        th,
+        td {
+          padding: 6px 3px;
+        }
+        input {
+          width: 42px;
+          padding: 3px;
+        }
+        .plus-btn,
+        .minus-btn {
+          width: 22px;
+          height: 22px;
+          font-size: 13px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-header">
+      <h1>Poker Share by Mr. Sibil</h1>
+      <button
+        class="burger-btn"
+        onclick="toggleMenu()"
+        aria-label="Open settings"
+      >
+        ☰
+      </button>
+    </div>
 
-    function clearSavedData() {
-      localStorage.removeItem('pokerGameState');
-      localStorage.removeItem('pokerPlayerNames');
-      updateSaveIndicator();
-      alert('All saved data cleared!');
-    }
+    <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
 
-    function addBuy(playerIndex) {
-      const buyInput = document.getElementById(`buy_${playerIndex}`);
-      buyInput.value = parseInt(buyInput.value) + 1;
-      updateTotals();
-      saveGameState();
-    }
+    <div class="menu-panel" id="menuPanel">
+      <div class="menu-header">
+        <span>⚙️ Settings</span>
+        <button class="menu-close-btn" onclick="closeMenu()">✕</button>
+      </div>
 
-    function removeBuy(playerIndex) {
-      const buyInput = document.getElementById(`buy_${playerIndex}`);
-      const currentValue = parseInt(buyInput.value);
-      if (currentValue > 0) {
-        buyInput.value = currentValue - 1;
+      <div class="menu-section-title">Game Setup</div>
+      <div class="menu-row">
+        <label>Number of players</label>
+        <input type="number" id="playerCount" value="9" min="2" max="12" />
+        <button
+          class="gen-btn"
+          onclick="
+            generateTable();
+            closeMenu();
+          "
+        >
+          Generate
+        </button>
+      </div>
+      <div class="menu-row">
+        <label>Buy-in value (M)</label>
+        <input
+          type="number"
+          id="buyValueInput"
+          value="5"
+          min="0.5"
+          step="0.5"
+        />
+      </div>
+
+      <hr class="menu-divider" />
+
+      <div class="menu-section-title">Actions</div>
+      <button
+        class="menu-action-btn reset-btn"
+        onclick="
+          resetNumbers();
+          closeMenu();
+        "
+      >
+        🔄 Reset Numbers
+      </button>
+      <button
+        class="menu-action-btn clear-btn"
+        onclick="
+          clearSavedData();
+          closeMenu();
+        "
+      >
+        🗑️ Clear All Data
+      </button>
+    </div>
+
+    <div id="tableContainer"></div>
+
+    <div id="saveIndicator" class="save-status"></div>
+
+    <script>
+      function getBuyValue() {
+        return parseFloat(document.getElementById("buyValueInput").value) || 5;
+      }
+
+      function toggleMenu() {
+        document.getElementById("menuPanel").classList.toggle("open");
+        document.getElementById("menuOverlay").classList.toggle("open");
+      }
+
+      function closeMenu() {
+        document.getElementById("menuPanel").classList.remove("open");
+        document.getElementById("menuOverlay").classList.remove("open");
+      }
+
+      function saveGameState() {
+        const count = parseInt(document.getElementById("playerCount").value);
+        const expenseEl = document.getElementById("expense");
+        const lossShareEl = document.getElementById("lossSharePct");
+        const gameState = {
+          playerCount: count,
+          buyValue: getBuyValue(),
+          expense: expenseEl ? expenseEl.value : 0,
+          lossSharePct: lossShareEl ? lossShareEl.value : 50,
+          players: [],
+          timestamp: new Date().toISOString(),
+        };
+        for (let i = 0; i < count; i++) {
+          const nameEl = document.getElementById(`name_${i}`);
+          if (nameEl) {
+            gameState.players.push({
+              name: nameEl.value,
+              buys: document.getElementById(`buy_${i}`).value,
+              chipsBack: document.getElementById(`back_${i}`).value,
+            });
+          }
+        }
+        localStorage.setItem("pokerGameState", JSON.stringify(gameState));
+        updateSaveIndicator();
+      }
+
+      function loadGameState() {
+        const savedState = localStorage.getItem("pokerGameState");
+        if (savedState) {
+          const gameState = JSON.parse(savedState);
+          document.getElementById("playerCount").value = gameState.playerCount;
+          if (gameState.buyValue) {
+            document.getElementById("buyValueInput").value = gameState.buyValue;
+          }
+        }
+      }
+
+      function updateSaveIndicator() {
+        const indicator = document.getElementById("saveIndicator");
+        if (!indicator) return;
+        const savedState = localStorage.getItem("pokerGameState");
+        if (savedState) {
+          const gameState = JSON.parse(savedState);
+          const diffMinutes = Math.floor(
+            (Date.now() - new Date(gameState.timestamp)) / 60000,
+          );
+          const timeText =
+            diffMinutes < 1
+              ? "just now"
+              : diffMinutes < 60
+                ? `${diffMinutes}m ago`
+                : `${Math.floor(diffMinutes / 60)}h ago`;
+          indicator.textContent = `💾 Saved ${timeText}`;
+          indicator.style.color = "#22c55e";
+          indicator.style.backgroundColor = "rgba(34, 197, 94, 0.1)";
+          indicator.style.display = "block";
+        } else {
+          indicator.style.display = "none";
+        }
+      }
+
+      function clearSavedData() {
+        if (!confirm("Clear all saved data?")) return;
+        localStorage.removeItem("pokerGameState");
+        localStorage.removeItem("pokerPlayerNames");
+        updateSaveIndicator();
+      }
+
+      function addBuy(playerIndex) {
+        const buyInput = document.getElementById(`buy_${playerIndex}`);
+        buyInput.value = parseInt(buyInput.value) + 1;
         updateTotals();
         saveGameState();
       }
-    }
 
-    function updateTotals() {
-      const count = parseInt(document.getElementById("playerCount").value);
-      let totalBuys = 0;
-      let totalChips = 0;
-
-      for (let i = 0; i < count; i++) {
-        const buys = parseInt(document.getElementById(`buy_${i}`).value) || 0;
-        const chips = parseFloat(document.getElementById(`back_${i}`).value) || 0;
-        totalBuys += buys * buyValue; // Convert to millions
-        totalChips += chips;
+      function removeBuy(playerIndex) {
+        const buyInput = document.getElementById(`buy_${playerIndex}`);
+        const currentValue = parseInt(buyInput.value);
+        if (currentValue > 0) {
+          buyInput.value = currentValue - 1;
+          updateTotals();
+          saveGameState();
+        }
       }
 
-      document.getElementById("totalBuys").textContent = totalBuys.toFixed(1) + "M";
-      document.getElementById("totalChips").textContent = totalChips.toFixed(1) + "M";
-    }
+      function updateTotals() {
+        const count = parseInt(document.getElementById("playerCount").value);
+        const bv = getBuyValue();
+        let totalBuys = 0,
+          totalChips = 0;
+        for (let i = 0; i < count; i++) {
+          totalBuys +=
+            (parseInt(document.getElementById(`buy_${i}`).value) || 0) * bv;
+          totalChips +=
+            parseFloat(document.getElementById(`back_${i}`).value) || 0;
+        }
+        document.getElementById("totalBuys").textContent =
+          totalBuys.toFixed(1) + "M";
+        document.getElementById("totalChips").textContent =
+          totalChips.toFixed(1) + "M";
+      }
 
-    function generateTable() {
-      const count = parseInt(document.getElementById("playerCount").value);
-      const container = document.getElementById("tableContainer");
-      // Load saved names from localStorage
-      const savedNames = JSON.parse(localStorage.getItem('pokerPlayerNames')) || [];
-      container.innerHTML = `
+      function generateTable() {
+        const count = parseInt(document.getElementById("playerCount").value);
+        const container = document.getElementById("tableContainer");
+        const savedNames =
+          JSON.parse(localStorage.getItem("pokerPlayerNames")) || [];
+        const bv = getBuyValue();
+
+        container.innerHTML = `
         <table>
           <thead>
             <tr>
               <th>Name</th>
-              <th>Buys (5M each)</th>
+              <th>Buys (${bv}M each)</th>
               <th>Chips Back (M)</th>
             </tr>
           </thead>
           <tbody>
-            ${Array.from({ length: count }, (_, i) => `
+            ${Array.from(
+              { length: count },
+              (_, i) => `
               <tr>
-                <td><input type="text" id="name_${i}" value="${savedNames[i] || 'Player ' + (i + 1)}"></td>
+                <td><input type="text" id="name_${i}" value="${savedNames[i] || "Player " + (i + 1)}"></td>
                 <td>
                   <div class="buy-controls">
-                    <button class="minus-btn" onclick="removeBuy(${i})">-</button>
+                    <button class="minus-btn" onclick="removeBuy(${i})">−</button>
                     <input type="number" id="buy_${i}" value="1" min="0">
                     <button class="plus-btn" onclick="addBuy(${i})">+</button>
                   </div>
                 </td>
-                <td><input type="number" id="back_${i}" value="" min="0"></td>
+                <td><input type="number" id="back_${i}" value="" min="0" placeholder="—"></td>
               </tr>
-            `).join('')}
+            `,
+            ).join("")}
             <tr class="total-row">
               <td>Total</td>
               <td id="totalBuys">0</td>
@@ -395,116 +680,208 @@
             </tr>
           </tbody>
         </table>
-        <div style="margin-top:15px;">
-          <label>Total Expense (M): </label>
-          <input type="number" id="expense" value="0" min="0">
+        <div class="action-area">
+          <div id="warningContainer"></div>
+          <div class="calc-settings">
+            <div class="setting-group">
+              <label>Expense (M):</label>
+              <input type="number" id="expense" value="0" min="0" style="width:80px;">
+            </div>
+            <div class="setting-group">
+              <label>Loss-based %:</label>
+              <input type="number" id="lossSharePct" value="50" min="0" max="100" style="width:60px;">
+              <span class="hint">of expense split by losses, rest equal</span>
+            </div>
+          </div>
+          <button class="calc-btn" onclick="calculate()">🎯 Calculate Shares</button>
+          <div id="resultContainer"></div>
         </div>
-        <button onclick="calculate()">🎯 Calculate</button>
-        <button onclick="resetNumbers()">🔄 Reset</button>
-        <button onclick="clearSavedData()" style="background: linear-gradient(145deg, #dc2626 0%, #b91c1c 100%); border: 2px solid #dc2626; color: #fbbf24;">🗑️ Clear Data</button>
-        <div id="resultContainer"></div>
       `;
 
-      // Restore saved game state if it exists
-      const savedState = localStorage.getItem('pokerGameState');
-      if (savedState) {
-        const gameState = JSON.parse(savedState);
-        setTimeout(() => {
-          gameState.players.forEach((player, index) => {
-            if (document.getElementById(`name_${index}`)) {
-              document.getElementById(`name_${index}`).value = player.name;
-              document.getElementById(`buy_${index}`).value = player.buys;
-              document.getElementById(`back_${index}`).value = player.chipsBack;
+        // Restore saved game state
+        const savedState = localStorage.getItem("pokerGameState");
+        if (savedState) {
+          const gs = JSON.parse(savedState);
+          setTimeout(() => {
+            gs.players.forEach((player, i) => {
+              if (i < count) {
+                if (document.getElementById(`name_${i}`))
+                  document.getElementById(`name_${i}`).value = player.name;
+                if (document.getElementById(`buy_${i}`))
+                  document.getElementById(`buy_${i}`).value = player.buys;
+                if (document.getElementById(`back_${i}`))
+                  document.getElementById(`back_${i}`).value = player.chipsBack;
+              }
+            });
+            if (document.getElementById("expense"))
+              document.getElementById("expense").value = gs.expense || 0;
+            if (
+              document.getElementById("lossSharePct") &&
+              gs.lossSharePct != null
+            ) {
+              document.getElementById("lossSharePct").value = gs.lossSharePct;
             }
-          });
-          document.getElementById("expense").value = gameState.expense || 0;
+            updateTotals();
+            updateSaveIndicator();
+          }, 50);
+        }
+
+        setTimeout(() => {
+          for (let i = 0; i < count; i++) {
+            document
+              .getElementById(`buy_${i}`)
+              .addEventListener("input", () => {
+                updateTotals();
+                saveGameState();
+              });
+            document
+              .getElementById(`back_${i}`)
+              .addEventListener("input", () => {
+                updateTotals();
+                saveGameState();
+              });
+            document
+              .getElementById(`name_${i}`)
+              .addEventListener("input", saveGameState);
+          }
+          document
+            .getElementById("expense")
+            .addEventListener("input", saveGameState);
+          document
+            .getElementById("lossSharePct")
+            .addEventListener("input", saveGameState);
           updateTotals();
-          updateSaveIndicator();
-        }, 100);
+        }, 0);
       }
 
-      // Add event listeners to update totals and auto-save when inputs change
-      setTimeout(() => {
+      function calculate() {
+        const count = parseInt(document.getElementById("playerCount").value);
+        const expense =
+          parseFloat(document.getElementById("expense").value) || 0;
+        const lossSharePct = Math.min(
+          100,
+          Math.max(
+            0,
+            parseFloat(document.getElementById("lossSharePct").value) || 50,
+          ),
+        );
+        const bv = getBuyValue();
+
+        // Warn on empty chips back
+        const emptyNames = [];
         for (let i = 0; i < count; i++) {
-          document.getElementById(`buy_${i}`).addEventListener('input', () => {
-            updateTotals();
-            saveGameState();
-          });
-          document.getElementById(`back_${i}`).addEventListener('input', () => {
-            updateTotals();
-            saveGameState();
-          });
-          document.getElementById(`name_${i}`).addEventListener('input', saveGameState);
+          if (document.getElementById(`back_${i}`).value.trim() === "") {
+            emptyNames.push(
+              document.getElementById(`name_${i}`).value || `Player ${i + 1}`,
+            );
+          }
         }
-        document.getElementById('expense').addEventListener('input', saveGameState);
-        updateTotals();
-      }, 0);
-    }
-
-    function calculate() {
-      const count = parseInt(document.getElementById("playerCount").value);
-      const expense = parseFloat(document.getElementById("expense").value);
-      let players = [];
-
-      for (let i = 0; i < count; i++) {
-        const name = document.getElementById(`name_${i}`).value;
-        const buys = parseInt(document.getElementById(`buy_${i}`).value);
-        const back = parseFloat(document.getElementById(`back_${i}`).value);
-        const totalBuy = buys * buyValue;
-        const net = back - totalBuy;
-        players.push({ name, buys, back, totalBuy, net });
-      }
-
-      // Save names to localStorage
-      const names = players.map(p => p.name);
-      localStorage.setItem('pokerPlayerNames', JSON.stringify(names));
-
-      const winner = players.reduce((a, b) => a.net > b.net ? a : b);
-
-      const losers = players.filter(p => p.net < 0);
-      const others = players.filter(p => p.name !== winner.name);
-
-      const totalLoss = losers.reduce((sum, p) => sum + Math.abs(p.net), 0);
-      const halfExpense = expense / 2;
-      const equalShare = halfExpense / others.length;
-
-      players.forEach(p => {
-        if (p.name === winner.name) {
-          p.toPay = 0;
+        const warningContainer = document.getElementById("warningContainer");
+        if (emptyNames.length > 0) {
+          warningContainer.innerHTML = `<div class="warning-box">⚠️ <strong>${emptyNames.join(", ")}</strong> — "Chips Back" is empty, treated as 0. Update and recalculate if needed.</div>`;
         } else {
-          const lossShare = p.net < 0 ? (Math.abs(p.net) / totalLoss) * halfExpense : 0;
-          p.toPay = lossShare + equalShare;
+          warningContainer.innerHTML = "";
         }
-      });
 
-      const resultHTML = `
+        const players = [];
+        for (let i = 0; i < count; i++) {
+          const name =
+            document.getElementById(`name_${i}`).value || `Player ${i + 1}`;
+          const buys = parseInt(document.getElementById(`buy_${i}`).value) || 0;
+          const back =
+            parseFloat(document.getElementById(`back_${i}`).value) || 0;
+          const totalBuy = buys * bv;
+          players.push({ name, buys, back, totalBuy, net: back - totalBuy });
+        }
+
+        // Save names
+        localStorage.setItem(
+          "pokerPlayerNames",
+          JSON.stringify(players.map((p) => p.name)),
+        );
+
+        // All players sharing the highest net are winners — everyone else pays
+        const maxNet = Math.max(...players.map((p) => p.net));
+        const nonWinners = players.filter((p) => p.net < maxNet);
+        const losers = nonWinners.filter((p) => p.net < 0);
+        const totalLoss = losers.reduce((sum, p) => sum + Math.abs(p.net), 0);
+
+        const lossShareAmount = expense * (lossSharePct / 100);
+        const equalShareAmount = expense * (1 - lossSharePct / 100);
+        const equalShare =
+          nonWinners.length > 0 ? equalShareAmount / nonWinners.length : 0;
+
+        players.forEach((p) => {
+          if (p.net === maxNet) {
+            p.toPay = 0;
+            p.isWinner = true;
+          } else {
+            const lossShare =
+              p.net < 0 && totalLoss > 0
+                ? (Math.abs(p.net) / totalLoss) * lossShareAmount
+                : 0;
+            p.toPay = lossShare + equalShare;
+            p.isWinner = false;
+          }
+        });
+
+        const winners = players.filter((p) => p.isWinner);
+        const winnerNames = winners.map((p) => p.name).join(" & ");
+
+        document.getElementById("resultContainer").innerHTML = `
         <div class="result">
           <h3>Results</h3>
-          ${players.map(p => `
-            <div><strong>${p.name}</strong> — Net: ${p.net.toFixed(1)}M — Pays: ${p.toPay.toFixed(1)}M</div>
-          `).join('')}
-          <p style="margin-top:10px;color:#38bdf8;">🏆 ${winner.name} is the winner and pays nothing!</p>
+          ${players
+            .map(
+              (p) => `
+            <div class="result-row">
+              <div class="result-left">
+                <span class="result-name">${p.name}${p.isWinner ? " 🏆" : ""}</span>
+                <span class="result-net">Net: ${p.net >= 0 ? "+" : ""}${p.net.toFixed(1)}M</span>
+              </div>
+              <span class="result-pay ${p.isWinner ? "pays-nothing" : "pays-amount"}">
+                ${p.isWinner ? "Pays nothing" : `Pays ${p.toPay.toFixed(1)}M`}
+              </span>
+            </div>
+          `,
+            )
+            .join("")}
+          <p class="winner-note">🏆 ${winnerNames} ${winners.length > 1 ? "are the winners" : "is the winner"} and pay${winners.length > 1 ? "" : "s"} nothing!</p>
         </div>
       `;
-      document.getElementById("resultContainer").innerHTML = resultHTML;
-      document.getElementById("resultContainer").scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function resetNumbers() {
-      const count = parseInt(document.getElementById("playerCount").value);
-      for (let i = 0; i < count; i++) {
-        document.getElementById(`buy_${i}`).value = 0;
-        document.getElementById(`back_${i}`).value = "";
+        document
+          .getElementById("resultContainer")
+          .scrollIntoView({ behavior: "smooth" });
       }
-      document.getElementById("expense").value = 0;
-      document.getElementById("resultContainer").innerHTML = "";
-      updateTotals();
-      saveGameState();
-    }
 
-    loadGameState();
-    generateTable();
-  </script>
+      function resetNumbers() {
+        const count = parseInt(document.getElementById("playerCount").value);
+        for (let i = 0; i < count; i++) {
+          if (document.getElementById(`buy_${i}`))
+            document.getElementById(`buy_${i}`).value = 0;
+          if (document.getElementById(`back_${i}`))
+            document.getElementById(`back_${i}`).value = "";
+        }
+        const expEl = document.getElementById("expense");
+        if (expEl) expEl.value = 0;
+        const resultEl = document.getElementById("resultContainer");
+        if (resultEl) resultEl.innerHTML = "";
+        const warnEl = document.getElementById("warningContainer");
+        if (warnEl) warnEl.innerHTML = "";
+        updateTotals();
+        saveGameState();
+      }
 
-</body>
+      // Wire up buy-in input to update table header + totals live
+      document.getElementById("buyValueInput").addEventListener("input", () => {
+        const thEl = document.querySelector("table thead tr th:nth-child(2)");
+        if (thEl) thEl.textContent = `Buys (${getBuyValue()}M each)`;
+        updateTotals();
+        saveGameState();
+      });
+
+      loadGameState();
+      generateTable();
+    </script>
+  </body>
 </html>
