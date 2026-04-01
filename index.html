@@ -138,21 +138,6 @@
         width: 64px;
         flex-shrink: 0;
       }
-      .gen-btn {
-        background: #38bdf8;
-        border: none;
-        color: #111827;
-        font-weight: bold;
-        padding: 6px 11px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 0.82rem;
-        white-space: nowrap;
-      }
-      .gen-btn:hover {
-        background: #7dd3fc;
-      }
-
       .menu-divider {
         border: none;
         border-top: 1px solid #374151;
@@ -383,6 +368,62 @@
       }
 
       /* ── Save indicator ───────────────────────────── */
+      /* ── Toggle switch ─────────────────────────── */
+      .toggle-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .toggle-row label {
+        color: #d1d5db;
+        font-size: 0.88rem;
+        flex: 1;
+        line-height: 1.35;
+      }
+      .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+        flex-shrink: 0;
+      }
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+        position: absolute;
+      }
+      .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        inset: 0;
+        background-color: #374151;
+        border-radius: 24px;
+        transition: background 0.2s;
+      }
+      .toggle-slider::before {
+        content: "";
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        left: 3px;
+        top: 3px;
+        background-color: #9ca3af;
+        border-radius: 50%;
+        transition:
+          transform 0.2s,
+          background 0.2s;
+      }
+      .toggle-switch input:checked + .toggle-slider {
+        background-color: rgba(56, 189, 248, 0.25);
+      }
+      .toggle-switch input:checked + .toggle-slider::before {
+        transform: translateX(20px);
+        background-color: #38bdf8;
+      }
+
       .save-status {
         position: fixed;
         bottom: 10px;
@@ -399,54 +440,58 @@
       /* ── Mobile ───────────────────────────────────── */
       @media (max-width: 768px) {
         body {
-          padding: 10px;
-          padding-top: 62px;
-        }
-        .top-header h1 {
-          font-size: 1.02rem;
+          padding: 12px;
+          padding-top: 64px;
         }
         table {
-          font-size: 0.88rem;
+          font-size: 1rem;
+          max-width: 100%;
         }
         th,
         td {
-          padding: 8px 4px;
+          padding: 12px 6px;
         }
-        input {
-          width: 48px;
-          font-size: 0.84rem;
+        /* Name column: let it stretch */
+        td:first-child input {
+          width: 100%;
+          min-width: 0;
+          font-size: 1rem;
         }
-        .buy-controls {
-          gap: 3px;
+        /* Chips back column */
+        td:last-child input {
+          width: 70px;
+          font-size: 1rem;
         }
-        .calc-settings {
-          gap: 12px;
-        }
-        .menu-panel {
-          width: 270px;
-          right: -280px;
-        }
-      }
-      @media (max-width: 480px) {
-        .top-header {
-          padding: 9px 12px;
-        }
-        .top-header h1 {
-          font-size: 0.9rem;
-        }
-        th,
-        td {
-          padding: 6px 3px;
-        }
-        input {
-          width: 42px;
-          padding: 3px;
+        .buy-controls input {
+          width: 44px;
+          font-size: 1rem;
         }
         .plus-btn,
         .minus-btn {
-          width: 22px;
-          height: 22px;
-          font-size: 13px;
+          width: 32px;
+          height: 32px;
+          font-size: 18px;
+        }
+        .calc-settings {
+          padding: 14px;
+          font-size: 1rem;
+        }
+        .calc-btn {
+          padding: 16px;
+          font-size: 1.05rem;
+        }
+        .result-name {
+          font-size: 1rem;
+        }
+        .result-net {
+          font-size: 0.9rem;
+        }
+        .result-pay {
+          font-size: 1rem;
+        }
+        .menu-panel {
+          width: 290px;
+          right: -300px;
         }
       }
     </style>
@@ -473,17 +518,8 @@
 
       <div class="menu-section-title">Game Setup</div>
       <div class="menu-row">
-        <label>Number of players</label>
+        <label># of Pokerists</label>
         <input type="number" id="playerCount" value="9" min="2" max="12" />
-        <button
-          class="gen-btn"
-          onclick="
-            generateTable();
-            closeMenu();
-          "
-        >
-          Generate
-        </button>
       </div>
       <div class="menu-row">
         <label>Buy-in value (M)</label>
@@ -495,10 +531,49 @@
           step="0.5"
         />
       </div>
+      <div class="toggle-row">
+        <label
+          >By distance from winner
+          <span style="color: #6b7280; font-size: 0.75rem"
+            >(all non-winners pay — closer to winner = less to pay)</span
+          ></label
+        >
+        <label class="toggle-switch">
+          <input
+            type="checkbox"
+            id="proportionalOnly"
+            onchange="onProportionalToggle()"
+          />
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div id="lossShareRow" class="menu-row">
+        <label
+          >Loss-based %
+          <span style="color: #6b7280; font-size: 0.75rem"
+            >(of expense split by losses)</span
+          ></label
+        >
+        <input type="number" id="lossSharePct" value="50" min="0" max="100" />
+      </div>
 
       <hr class="menu-divider" />
 
       <div class="menu-section-title">Actions</div>
+      <button
+        class="menu-action-btn"
+        style="
+          background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+          color: #111827;
+          margin-bottom: 14px;
+        "
+        onclick="
+          generateTable();
+          closeMenu();
+        "
+      >
+        ♠️ Generate Table
+      </button>
       <button
         class="menu-action-btn reset-btn"
         onclick="
@@ -538,6 +613,14 @@
         document.getElementById("menuOverlay").classList.remove("open");
       }
 
+      function onProportionalToggle() {
+        const on = document.getElementById("proportionalOnly").checked;
+        document.getElementById("lossShareRow").style.display = on
+          ? "none"
+          : "flex";
+        saveGameState();
+      }
+
       function saveGameState() {
         const count = parseInt(document.getElementById("playerCount").value);
         const expenseEl = document.getElementById("expense");
@@ -547,6 +630,7 @@
           buyValue: getBuyValue(),
           expense: expenseEl ? expenseEl.value : 0,
           lossSharePct: lossShareEl ? lossShareEl.value : 50,
+          proportionalOnly: document.getElementById("proportionalOnly").checked,
           players: [],
           timestamp: new Date().toISOString(),
         };
@@ -571,6 +655,14 @@
           document.getElementById("playerCount").value = gameState.playerCount;
           if (gameState.buyValue) {
             document.getElementById("buyValueInput").value = gameState.buyValue;
+          }
+          if (gameState.lossSharePct != null) {
+            document.getElementById("lossSharePct").value =
+              gameState.lossSharePct;
+          }
+          if (gameState.proportionalOnly) {
+            document.getElementById("proportionalOnly").checked = true;
+            document.getElementById("lossShareRow").style.display = "none";
           }
         }
       }
@@ -687,11 +779,6 @@
               <label>Expense (M):</label>
               <input type="number" id="expense" value="0" min="0" style="width:80px;">
             </div>
-            <div class="setting-group">
-              <label>Loss-based %:</label>
-              <input type="number" id="lossSharePct" value="50" min="0" max="100" style="width:60px;">
-              <span class="hint">of expense split by losses, rest equal</span>
-            </div>
           </div>
           <button class="calc-btn" onclick="calculate()">🎯 Calculate Shares</button>
           <div id="resultContainer"></div>
@@ -715,12 +802,6 @@
             });
             if (document.getElementById("expense"))
               document.getElementById("expense").value = gs.expense || 0;
-            if (
-              document.getElementById("lossSharePct") &&
-              gs.lossSharePct != null
-            ) {
-              document.getElementById("lossSharePct").value = gs.lossSharePct;
-            }
             updateTotals();
             updateSaveIndicator();
           }, 50);
@@ -746,9 +827,6 @@
           }
           document
             .getElementById("expense")
-            .addEventListener("input", saveGameState);
-          document
-            .getElementById("lossSharePct")
             .addEventListener("input", saveGameState);
           updateTotals();
         }, 0);
@@ -801,21 +879,35 @@
         );
 
         // All players sharing the highest net are winners — everyone else pays
+        const proportionalOnly =
+          document.getElementById("proportionalOnly").checked;
         const maxNet = Math.max(...players.map((p) => p.net));
         const nonWinners = players.filter((p) => p.net < maxNet);
         const losers = nonWinners.filter((p) => p.net < 0);
         const totalLoss = losers.reduce((sum, p) => sum + Math.abs(p.net), 0);
 
-        const lossShareAmount = expense * (lossSharePct / 100);
-        const equalShareAmount = expense * (1 - lossSharePct / 100);
-        const equalShare =
-          nonWinners.length > 0 ? equalShareAmount / nonWinners.length : 0;
+        // For proportional-only mode: each non-winner pays based on their
+        // distance from the winner (maxNet - theirNet). The further below the
+        // winner, the more you pay — even positive-net players pay something.
+        const totalDistance = nonWinners.reduce(
+          (sum, p) => sum + (maxNet - p.net),
+          0,
+        );
 
         players.forEach((p) => {
           if (p.net === maxNet) {
             p.toPay = 0;
             p.isWinner = true;
+          } else if (proportionalOnly) {
+            const distance = maxNet - p.net;
+            p.toPay =
+              totalDistance > 0 ? (distance / totalDistance) * expense : 0;
+            p.isWinner = false;
           } else {
+            const lossShareAmount = expense * (lossSharePct / 100);
+            const equalShareAmount = expense * (1 - lossSharePct / 100);
+            const equalShare =
+              nonWinners.length > 0 ? equalShareAmount / nonWinners.length : 0;
             const lossShare =
               p.net < 0 && totalLoss > 0
                 ? (Math.abs(p.net) / totalLoss) * lossShareAmount
@@ -879,6 +971,10 @@
         updateTotals();
         saveGameState();
       });
+
+      document
+        .getElementById("lossSharePct")
+        .addEventListener("input", saveGameState);
 
       loadGameState();
       generateTable();
