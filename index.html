@@ -371,22 +371,29 @@
       /* ── Toggle switch ─────────────────────────── */
       .toggle-row {
         display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        margin-bottom: 12px;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 14px;
       }
-      .toggle-row label {
+      .toggle-row-title {
         color: #d1d5db;
         font-size: 0.88rem;
+      }
+      .toggle-row-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .toggle-row-hint {
+        color: #6b7280;
+        font-size: 0.76rem;
         flex: 1;
-        line-height: 1.35;
       }
       .toggle-switch {
         position: relative;
         display: inline-block;
-        width: 44px;
-        height: 24px;
+        width: 36px;
+        height: 20px;
         flex-shrink: 0;
       }
       .toggle-switch input {
@@ -400,14 +407,14 @@
         cursor: pointer;
         inset: 0;
         background-color: #374151;
-        border-radius: 24px;
+        border-radius: 20px;
         transition: background 0.2s;
       }
       .toggle-slider::before {
         content: "";
         position: absolute;
-        width: 18px;
-        height: 18px;
+        width: 14px;
+        height: 14px;
         left: 3px;
         top: 3px;
         background-color: #9ca3af;
@@ -417,11 +424,11 @@
           background 0.2s;
       }
       .toggle-switch input:checked + .toggle-slider {
-        background-color: rgba(56, 189, 248, 0.25);
+        background-color: #0ea5e9;
       }
       .toggle-switch input:checked + .toggle-slider::before {
-        transform: translateX(20px);
-        background-color: #38bdf8;
+        transform: translateX(16px);
+        background-color: #fff;
       }
 
       .save-status {
@@ -532,20 +539,20 @@
         />
       </div>
       <div class="toggle-row">
-        <label
-          >By distance from winner
-          <span style="color: #6b7280; font-size: 0.75rem"
-            >(all non-winners pay — closer to winner = less to pay)</span
-          ></label
-        >
-        <label class="toggle-switch">
-          <input
-            type="checkbox"
-            id="proportionalOnly"
-            onchange="onProportionalToggle()"
-          />
-          <span class="toggle-slider"></span>
-        </label>
+        <span class="toggle-row-title">By distance from winner</span>
+        <div class="toggle-row-controls">
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              id="proportionalOnly"
+              onchange="onProportionalToggle()"
+            />
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-row-hint"
+            >All non-winners pay — closer to winner = less to pay</span
+          >
+        </div>
       </div>
       <div id="lossShareRow" class="menu-row">
         <label
